@@ -105,6 +105,11 @@ class MediaField extends CompositeField {
             $oEmbedClass = get_class($oEmbed);
             $iframeCode = $oEmbed->getCode();
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
+            
+            if (!isset($match[1])) {
+                return;
+            }
+            
             $object->$embedUrlField = $match[1];
             $object->$embedTypeField = strpos($oEmbedClass, 'Youtube') !== false ? 'youtube' : 'vimeo';
         }
