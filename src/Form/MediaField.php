@@ -103,8 +103,7 @@ class MediaField extends CompositeField
         if ($object->$videoField && ($object->isChanged($videoField) || !$object->$embedUrlField)) {
             $embed = (new Embed())->get($object->$videoField);
             $oEmbed = $embed->getOEmbed();
-            $oEmbedClass = get_class($oEmbed);
-            $iframeCode = $oEmbed->getCode();
+            $iframeCode = (string)$embed->code;
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
 
             if (!isset($match[1])) {
@@ -112,8 +111,6 @@ class MediaField extends CompositeField
             }
 
             $object->$embedUrlField = $match[1];
-            $object->$embedTypeField = strpos($oEmbedClass, 'Youtube') !== false ? 'youtube' : 'vimeo';
+            $object->$embedTypeField = (string)$embed->providerName === 'YouTube' ? 'youtube' : 'vimeo';
         }
-    }
-
 }
