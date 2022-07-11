@@ -10,8 +10,8 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
 
-class MediaField extends CompositeField {
-
+class MediaField extends CompositeField
+{
     private static $media_types = [
         'image' => 'Image',
         'video' => 'Video'
@@ -100,16 +100,17 @@ class MediaField extends CompositeField {
      */
     public static function saveEmbed($object, $videoField = 'MediaVideo', $embedUrlField = 'MediaVideoEmbedUrl', $embedTypeField = 'MediaVideoType')
     {
-        if($object->$videoField && ($object->isChanged($videoField) || !$object->$embedUrlField)){
-            $oEmbed = Embed::create($object->$videoField);
+        if ($object->$videoField && ($object->isChanged($videoField) || !$object->$embedUrlField)) {
+            $embed = (new Embed())->get($object->$videoField);
+            $oEmbed = $embed->getOEmbed();
             $oEmbedClass = get_class($oEmbed);
             $iframeCode = $oEmbed->getCode();
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
-            
+
             if (!isset($match[1])) {
                 return;
             }
-            
+
             $object->$embedUrlField = $match[1];
             $object->$embedTypeField = strpos($oEmbedClass, 'Youtube') !== false ? 'youtube' : 'vimeo';
         }
