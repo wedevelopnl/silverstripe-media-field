@@ -113,4 +113,5 @@ class MediaField extends CompositeField
             $object->$embedUrlField = $match[1];
             $object->$embedTypeField = (string)$embed->providerName === 'YouTube' ? 'youtube' : 'vimeo';
         }
+    }
 }
