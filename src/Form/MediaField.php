@@ -6,38 +6,27 @@ use Embed\Embed;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
-use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 
 class MediaField extends CompositeField
 {
-    private static $media_types = [
+    /** @config */
+    private static array $media_types = [
         'image' => 'Image',
         'video' => 'Video'
     ];
 
-    private $typeField;
-
-    private $videoWrapper;
-    private $imageWrapper;
-    private $imageUploadField;
-
-    /**
-     * MediaField
-     * @param FieldList $fields
-     * @param string $typeField
-     * @param string $imageField
-     * @param string $videoField
-     * @param string $imageFolder
-     */
     public function __construct($fields, $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideo', $imageFolder = 'Media')
     {
         $this->typeField = $typeField;
 
-        $fields->removeByName($typeField);
-        $fields->removeByName($imageField);
-        $fields->removeByName($videoField);
+        $fields->removeByName([
+            $typeField,
+            $imageField,
+            $videoField,
+        ]);
 
         $children = [];
 
@@ -59,7 +48,12 @@ class MediaField extends CompositeField
         parent::__construct($children);
     }
 
-    public function FieldHolder($properties = array())
+
+    /**
+     * @param array $properties
+     * @return DBHTMLText
+     */
+    public function FieldHolder(array $properties = array()): DBHTMLText
     {
         //Display logic
         $this->imageWrapper->displayIf($this->typeField)->isEqualTo('image');
@@ -71,7 +65,7 @@ class MediaField extends CompositeField
     /**
      * @return Wrapper
      */
-    public function getVideoWrapper()
+    public function getVideoWrapper(): Wrapper
     {
         return $this->videoWrapper;
     }
@@ -79,7 +73,7 @@ class MediaField extends CompositeField
     /**
      * @return Wrapper
      */
-    public function getImageWrapper()
+    public function getImageWrapper(): Wrapper
     {
         return $this->imageWrapper;
     }
@@ -87,7 +81,7 @@ class MediaField extends CompositeField
     /**
      * @return UploadField
      */
-    public function getImageUploadField()
+    public function getImageUploadField(): UploadField
     {
         return $this->imageUploadField;
     }
@@ -97,12 +91,25 @@ class MediaField extends CompositeField
      * @param string $videoField
      * @param string $embedUrlField
      * @param string $embedTypeField
+     * @param string $embedName
+     * @param string $embedDescription
+     * @param string $embedImage
+     * @param string $embedCreated
+     * @return void
      */
-    public static function saveEmbed($object, $videoField = 'MediaVideo', $embedUrlField = 'MediaVideoEmbedUrl', $embedTypeField = 'MediaVideoType')
+    public static function saveEmbed(
+        $object,
+        string $videoField = 'MediaVideo',
+        string $embedUrlField = 'MediaVideoEmbedUrl',
+        string $embedTypeField = 'MediaVideoType',
+        string $embedName = 'MediaVideoEmbedName',
+        string $embedDescription = 'MediaVideoEmbedDescription',
+        string $embedImage = 'MediaVideoEmbedImage',
+        string $embedCreated = 'MediaVideoEmbedCreated',
+    ): void
     {
         if ($object->$videoField && ($object->isChanged($videoField) || !$object->$embedUrlField)) {
             $embed = (new Embed())->get($object->$videoField);
-            $oEmbed = $embed->getOEmbed();
             $iframeCode = (string)$embed->code;
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
 
@@ -112,6 +119,10 @@ class MediaField extends CompositeField
 
             $object->$embedUrlField = $match[1];
             $object->$embedTypeField = (string)$embed->providerName === 'YouTube' ? 'youtube' : 'vimeo';
+            $object->$embedName = (string)$embed->title;
+            $object->$embedDescription = (string)$embed->description;
+            $object->$embedImage = (string)$embed->image;
+            $object->$embedCreated = $embed->publishedTime?->format(\DateTime::ISO8601);
         }
     }
 }
