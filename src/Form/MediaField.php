@@ -13,12 +13,24 @@ use SilverStripe\ORM\FieldType\DBHTMLText;
 class MediaField extends CompositeField
 {
     /** @config */
+    private $typeField;
+
+    /** @config */
+    private $videoWrapper;
+
+    /** @config */
+    private $imageWrapper;
+
+    /** @config */
+    private $imageUploadField;
+
+    /** @config */
     private static array $media_types = [
         'image' => 'Image',
         'video' => 'Video'
     ];
 
-    public function __construct($fields, $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideo', $imageFolder = 'Media')
+    public function __construct($fields, string $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideo', $imageFolder = 'Media')
     {
         $this->typeField = $typeField;
 
@@ -48,12 +60,7 @@ class MediaField extends CompositeField
         parent::__construct($children);
     }
 
-
-    /**
-     * @param array $properties
-     * @return DBHTMLText
-     */
-    public function FieldHolder(array $properties = array()): DBHTMLText
+    public function FieldHolder(array $properties = []): DBHTMLText
     {
         //Display logic
         $this->imageWrapper->displayIf($this->typeField)->isEqualTo('image');
@@ -62,43 +69,23 @@ class MediaField extends CompositeField
         return parent::FieldHolder($properties);
     }
 
-    /**
-     * @return Wrapper
-     */
     public function getVideoWrapper(): Wrapper
     {
         return $this->videoWrapper;
     }
 
-    /**
-     * @return Wrapper
-     */
     public function getImageWrapper(): Wrapper
     {
         return $this->imageWrapper;
     }
 
-    /**
-     * @return UploadField
-     */
     public function getImageUploadField(): UploadField
     {
         return $this->imageUploadField;
     }
 
-    /**
-     * @param $object
-     * @param string $videoField
-     * @param string $embedUrlField
-     * @param string $embedTypeField
-     * @param string $embedName
-     * @param string $embedDescription
-     * @param string $embedImage
-     * @param string $embedCreated
-     * @return void
-     */
     public static function saveEmbed(
-        $object,
+        mixed $object,
         string $videoField = 'MediaVideo',
         string $embedUrlField = 'MediaVideoEmbedUrl',
         string $embedTypeField = 'MediaVideoType',
