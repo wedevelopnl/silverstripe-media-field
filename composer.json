@@ -17,7 +17,8 @@
         "silverstripe/cms": "^4@stable",
         "silverstripe/vendor-plugin": "^1.0",
         "silverstripe/display-logic": "^2.0",
-        "embed/embed": "^4.0"
+        "embed/embed": "^4.0",
+        "silverstripe/asset-admin": "^1.11"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.4"

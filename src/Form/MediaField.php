@@ -7,33 +7,27 @@ use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\TextField;
+use UncleCheese\DisplayLogic\Extensions\DisplayLogic;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 
 class MediaField extends CompositeField
 {
-    /** @config */
-    private string $typeField;
-
-    /** @config */
-    private Wrapper $videoWrapper;
-
-    /** @config */
-    private Wrapper $imageWrapper;
-
-    /** @config */
-    private UploadField $imageUploadField;
-
-    /** @config */
     private static array $media_types = [
         'image' => 'Image',
         'video' => 'Video',
     ];
 
-    public function __construct($fields, $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideo', $imageFolder = 'Media')
+    public function __construct(
+        $fields,
+        private Wrapper $videoWrapper,
+        private Wrapper $imageWrapper,
+        private UploadField $imageUploadField,
+        private string $typeField = 'MediaType',
+        $imageField = 'MediaImage',
+        $videoField = 'MediaVideo',
+        $imageFolder = 'Media')
     {
-        $this->typeField = $typeField;
-
         $fields->removeByName([
             $typeField,
             $imageField,
@@ -42,27 +36,26 @@ class MediaField extends CompositeField
 
         $children = [];
 
-        //Type
+        // Type
         $children[] = DropdownField::create($typeField, 'Type', self::$media_types);
 
-        //Image
+        // Image
         $this->imageWrapper = Wrapper::create(
             $this->imageUploadField = UploadField::create($imageField, 'Image')->setFolderName($imageFolder)
         );
-        $children[] = $this->imageWrapper;
 
-        //Video
+        // Video
         $this->videoWrapper = Wrapper::create(
             TextField::create($videoField, 'Video')
         );
-        $children[] = $this->videoWrapper;
+
+        array_push($children, $this->imageWrapper, $this->videoWrapper);
 
         parent::__construct($children);
     }
 
     public function FieldHolder($properties = []): DBHTMLText
     {
-        //Display logic
         $this->imageWrapper->displayIf($this->typeField)->isEqualTo('image');
         $this->videoWrapper->displayIf($this->typeField)->isEqualTo('video');
 
