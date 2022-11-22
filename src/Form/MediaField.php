@@ -6,6 +6,7 @@ use Embed\Embed;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
 use UncleCheese\DisplayLogic\Extensions\DisplayLogic;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
@@ -13,21 +14,24 @@ use SilverStripe\ORM\FieldType\DBHTMLText;
 
 class MediaField extends CompositeField
 {
+
+    private $videoWrapper;
+
+    private $imageWrapper;
+
+    private $imageUploadField;
+
+    private $typeField;
+
     private static array $media_types = [
         'image' => 'Image',
         'video' => 'Video',
     ];
 
-    public function __construct(
-        $fields,
-        private Wrapper $videoWrapper,
-        private Wrapper $imageWrapper,
-        private UploadField $imageUploadField,
-        private string $typeField = 'MediaType',
-        $imageField = 'MediaImage',
-        $videoField = 'MediaVideo',
-        $imageFolder = 'Media')
+    public function __construct(FieldList $fields, $mediaUploadFolder = 'MediaUploads', $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideoFullURL')
     {
+        $this->typeField = $typeField;
+
         $fields->removeByName([
             $typeField,
             $imageField,
@@ -41,12 +45,12 @@ class MediaField extends CompositeField
 
         // Image
         $this->imageWrapper = Wrapper::create(
-            $this->imageUploadField = UploadField::create($imageField, 'Image')->setFolderName($imageFolder)
+            $this->imageUploadField = UploadField::create($imageField, 'Image')->setFolderName($mediaUploadFolder)
         );
 
         // Video
         $this->videoWrapper = Wrapper::create(
-            TextField::create($videoField, 'Video')
+            TextField::create($videoField)
         );
 
         array_push($children, $this->imageWrapper, $this->videoWrapper);
@@ -79,16 +83,16 @@ class MediaField extends CompositeField
 
     public static function saveEmbed(
         mixed $object,
-        string $videoField = 'MediaVideo',
-        string $embedUrlField = 'MediaVideoEmbedUrl',
-        string $embedTypeField = 'MediaVideoType',
-        string $embedName = 'MediaVideoEmbedName',
-        string $embedDescription = 'MediaVideoEmbedDescription',
-        string $embedImage = 'MediaVideoEmbedImage',
-        string $embedCreated = 'MediaVideoEmbedCreated',
+        string $videoFullURLField = 'MediaVideoFullURL',
+        string $videoEmbeddedURLField = 'MediaVideoEmbeddedURL',
+        string $videoProviderField = 'MediaVideoProvider',
+        string $videoEmbeddedNameField = 'MediaVideoEmbeddedName',
+        string $videoEmbeddedDescriptionField = 'MediaVideoEmbeddedDescription',
+        string $videoEmbeddedThumbnailField = 'MediaVideoEmbeddedThumbnail',
+        string $videoEmbeddedCreatedField = 'MediaVideoEmbeddedCreated',
     ): void {
-        if ($object->$videoField && ($object->isChanged($videoField) || !$object->$embedUrlField)) {
-            $embed = (new Embed())->get($object->$videoField);
+        if ($object->$videoFullURLField && ($object->isChanged($videoFullURLField) || !$object->$videoEmbeddedURLField)) {
+            $embed = (new Embed())->get($object->$videoFullURLField);
             $iframeCode = (string)$embed->code;
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
 
@@ -96,16 +100,18 @@ class MediaField extends CompositeField
                 return;
             }
 
-            $object->$embedUrlField = $match[1];
-            $object->$embedTypeField = (string)$embed->providerName === 'YouTube' ? 'youtube' : 'vimeo';
-            $object->$embedName = (string)$embed->title;
-            $object->$embedDescription = (string)$embed->description;
-            if ($embed->providerName === 'vimeo') {
-                $object->$embedImage = $embed->getOEmbed()->get('thumbnail_url');
+            $object->$videoEmbeddedURLField = $match[1];
+            $object->$videoProviderField = (string)$embed->providerName;
+            $object->$videoEmbeddedNameField = (string)$embed->title;
+            $object->$videoEmbeddedDescriptionField = (string)$embed->description;
+
+            if ($embed->providerName === 'Vimeo') {
+                $object->$videoEmbeddedThumbnailField = $embed->getOEmbed()->get('thumbnail_url');
+                $object->$videoEmbeddedCreatedField = $embed->getOEmbed()->get('upload_date') ?? '';
             } else {
-                $object->$embedImage = (string)$embed->image;
+                $object->$videoEmbeddedThumbnailField = (string)$embed->image;
+                $object->$videoEmbeddedCreatedField = $embed->publishedTime?->format(\DateTime::ISO8601);
             }
-            $object->$embedCreated = $embed->publishedTime?->format(\DateTime::ISO8601);
         }
     }
 }
