@@ -1,4 +1,5 @@
 # silverstripe-media-field
+Adds a media field with extra options as well as video embeds
 
 ## Requirements
 * See `composer.json` requirements

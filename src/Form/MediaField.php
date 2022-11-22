@@ -13,16 +13,16 @@ use SilverStripe\ORM\FieldType\DBHTMLText;
 class MediaField extends CompositeField
 {
     /** @config */
-    private $typeField;
+    private string $typeField;
 
     /** @config */
-    private $videoWrapper;
+    private Wrapper $videoWrapper;
 
     /** @config */
-    private $imageWrapper;
+    private Wrapper $imageWrapper;
 
     /** @config */
-    private $imageUploadField;
+    private UploadField $imageUploadField;
 
     /** @config */
     private static array $media_types = [
