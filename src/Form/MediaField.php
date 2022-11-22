@@ -1,6 +1,6 @@
 <?php
 
-namespace TheWebmen\MediaField\Form;
+namespace WeDevelop\MediaField\Form;
 
 use Embed\Embed;
 use SilverStripe\AssetAdmin\Forms\UploadField;
@@ -27,10 +27,10 @@ class MediaField extends CompositeField
     /** @config */
     private static array $media_types = [
         'image' => 'Image',
-        'video' => 'Video'
+        'video' => 'Video',
     ];
 
-    public function __construct($fields, string $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideo', $imageFolder = 'Media')
+    public function __construct($fields, $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideo', $imageFolder = 'Media')
     {
         $this->typeField = $typeField;
 
@@ -60,7 +60,7 @@ class MediaField extends CompositeField
         parent::__construct($children);
     }
 
-    public function FieldHolder(array $properties = []): DBHTMLText
+    public function FieldHolder($properties = []): DBHTMLText
     {
         //Display logic
         $this->imageWrapper->displayIf($this->typeField)->isEqualTo('image');
@@ -93,8 +93,7 @@ class MediaField extends CompositeField
         string $embedDescription = 'MediaVideoEmbedDescription',
         string $embedImage = 'MediaVideoEmbedImage',
         string $embedCreated = 'MediaVideoEmbedCreated',
-    ): void
-    {
+    ): void {
         if ($object->$videoField && ($object->isChanged($videoField) || !$object->$embedUrlField)) {
             $embed = (new Embed())->get($object->$videoField);
             $iframeCode = (string)$embed->code;
@@ -108,7 +107,11 @@ class MediaField extends CompositeField
             $object->$embedTypeField = (string)$embed->providerName === 'YouTube' ? 'youtube' : 'vimeo';
             $object->$embedName = (string)$embed->title;
             $object->$embedDescription = (string)$embed->description;
-            $object->$embedImage = (string)$embed->image;
+            if ($embed->providerName === 'vimeo') {
+                $object->$embedImage = $embed->getOEmbed()->get('thumbnail_url');
+            } else {
+                $object->$embedImage = (string)$embed->image;
+            }
             $object->$embedCreated = $embed->publishedTime?->format(\DateTime::ISO8601);
         }
     }
