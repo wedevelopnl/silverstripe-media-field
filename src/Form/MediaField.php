@@ -1,6 +1,6 @@
 <?php
 
-namespace TheWebmen\MediaField\Form;
+namespace WeDevelop\MediaField\Form;
 
 use Embed\Embed;
 use SilverStripe\AssetAdmin\Forms\UploadField;
@@ -8,101 +8,91 @@ use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
+use UncleCheese\DisplayLogic\Extensions\DisplayLogic;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 
 class MediaField extends CompositeField
 {
-    private static $media_types = [
-        'image' => 'Image',
-        'video' => 'Video'
-    ];
+
+    private $videoWrapper;
+
+    private $imageWrapper;
+
+    private $imageUploadField;
 
     private $typeField;
 
-    private $videoWrapper;
-    private $imageWrapper;
-    private $imageUploadField;
+    private static array $media_types = [
+        'image' => 'Image',
+        'video' => 'Video',
+    ];
 
-    /**
-     * MediaField
-     * @param FieldList $fields
-     * @param string $typeField
-     * @param string $imageField
-     * @param string $videoField
-     * @param string $imageFolder
-     */
-    public function __construct($fields, $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideo', $imageFolder = 'Media')
+    public function __construct(FieldList $fields, $mediaUploadFolder = 'MediaUploads', $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideoFullURL')
     {
         $this->typeField = $typeField;
 
-        $fields->removeByName($typeField);
-        $fields->removeByName($imageField);
-        $fields->removeByName($videoField);
+        $fields->removeByName([
+            $typeField,
+            $imageField,
+            $videoField,
+        ]);
 
         $children = [];
 
-        //Type
+        // Type
         $children[] = DropdownField::create($typeField, 'Type', self::$media_types);
 
-        //Image
+        // Image
         $this->imageWrapper = Wrapper::create(
-            $this->imageUploadField = UploadField::create($imageField, 'Image')->setFolderName($imageFolder)
+            $this->imageUploadField = UploadField::create($imageField, 'Image')->setFolderName($mediaUploadFolder)
         );
-        $children[] = $this->imageWrapper;
 
-        //Video
+        // Video
         $this->videoWrapper = Wrapper::create(
-            TextField::create($videoField, 'Video')
+            TextField::create($videoField)
         );
-        $children[] = $this->videoWrapper;
+
+        array_push($children, $this->imageWrapper, $this->videoWrapper);
 
         parent::__construct($children);
     }
 
-    public function FieldHolder($properties = array())
+    public function FieldHolder($properties = []): DBHTMLText
     {
-        //Display logic
         $this->imageWrapper->displayIf($this->typeField)->isEqualTo('image');
         $this->videoWrapper->displayIf($this->typeField)->isEqualTo('video');
 
         return parent::FieldHolder($properties);
     }
 
-    /**
-     * @return Wrapper
-     */
-    public function getVideoWrapper()
+    public function getVideoWrapper(): Wrapper
     {
         return $this->videoWrapper;
     }
 
-    /**
-     * @return Wrapper
-     */
-    public function getImageWrapper()
+    public function getImageWrapper(): Wrapper
     {
         return $this->imageWrapper;
     }
 
-    /**
-     * @return UploadField
-     */
-    public function getImageUploadField()
+    public function getImageUploadField(): UploadField
     {
         return $this->imageUploadField;
     }
 
-    /**
-     * @param $object
-     * @param string $videoField
-     * @param string $embedUrlField
-     * @param string $embedTypeField
-     */
-    public static function saveEmbed($object, $videoField = 'MediaVideo', $embedUrlField = 'MediaVideoEmbedUrl', $embedTypeField = 'MediaVideoType')
-    {
-        if ($object->$videoField && ($object->isChanged($videoField) || !$object->$embedUrlField)) {
-            $embed = (new Embed())->get($object->$videoField);
-            $oEmbed = $embed->getOEmbed();
+    public static function saveEmbed(
+        mixed $object,
+        string $videoFullURLField = 'MediaVideoFullURL',
+        string $videoEmbeddedURLField = 'MediaVideoEmbeddedURL',
+        string $videoProviderField = 'MediaVideoProvider',
+        string $videoEmbeddedNameField = 'MediaVideoEmbeddedName',
+        string $videoEmbeddedDescriptionField = 'MediaVideoEmbeddedDescription',
+        string $videoEmbeddedThumbnailField = 'MediaVideoEmbeddedThumbnail',
+        string $videoEmbeddedCreatedField = 'MediaVideoEmbeddedCreated',
+    ): void {
+        if ($object->$videoFullURLField && ($object->isChanged($videoFullURLField) || !$object->$videoEmbeddedURLField)) {
+            $embed = (new Embed())->get($object->$videoFullURLField);
             $iframeCode = (string)$embed->code;
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
 
@@ -110,8 +100,18 @@ class MediaField extends CompositeField
                 return;
             }
 
-            $object->$embedUrlField = $match[1];
-            $object->$embedTypeField = (string)$embed->providerName === 'YouTube' ? 'youtube' : 'vimeo';
+            $object->$videoEmbeddedURLField = $match[1];
+            $object->$videoProviderField = (string)$embed->providerName;
+            $object->$videoEmbeddedNameField = (string)$embed->title;
+            $object->$videoEmbeddedDescriptionField = (string)$embed->description;
+
+            if ($embed->providerName === 'Vimeo') {
+                $object->$videoEmbeddedThumbnailField = $embed->getOEmbed()->get('thumbnail_url');
+                $object->$videoEmbeddedCreatedField = $embed->getOEmbed()->get('upload_date') ?? '';
+            } else {
+                $object->$videoEmbeddedThumbnailField = (string)$embed->image;
+                $object->$videoEmbeddedCreatedField = $embed->publishedTime?->format(\DateTime::ISO8601);
+            }
         }
     }
 }
