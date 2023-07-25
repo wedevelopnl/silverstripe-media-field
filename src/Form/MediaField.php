@@ -8,27 +8,29 @@ use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
-use UncleCheese\DisplayLogic\Extensions\DisplayLogic;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 
 class MediaField extends CompositeField
 {
+    const TYPE_IMAGE = 'image';
 
-    private $videoWrapper;
+    const TYPE_VIDEO = 'video';
 
-    private $imageWrapper;
+    private Wrapper $videoWrapper;
 
-    private $imageUploadField;
+    private Wrapper $imageWrapper;
 
-    private $typeField;
+    private UploadField $imageUploadField;
+
+    private string $typeField;
 
     private static array $media_types = [
-        'image' => 'Image',
-        'video' => 'Video',
+        self::TYPE_IMAGE => 'Image',
+        self::TYPE_VIDEO => 'Video',
     ];
 
-    public function __construct(FieldList $fields, $mediaUploadFolder = 'MediaUploads', $typeField = 'MediaType', $imageField = 'MediaImage', $videoField = 'MediaVideoFullURL')
+    public function __construct(FieldList $fields, string $mediaUploadFolder = 'MediaUploads', string $typeField = 'MediaType', string $imageField = 'MediaImage', string $videoField = 'MediaVideoFullURL')
     {
         $this->typeField = $typeField;
 
@@ -60,8 +62,8 @@ class MediaField extends CompositeField
 
     public function FieldHolder($properties = []): DBHTMLText
     {
-        $this->imageWrapper->displayIf($this->typeField)->isEqualTo('image');
-        $this->videoWrapper->displayIf($this->typeField)->isEqualTo('video');
+        $this->imageWrapper->displayIf($this->typeField)->isEqualTo(self::TYPE_IMAGE);
+        $this->videoWrapper->displayIf($this->typeField)->isEqualTo(self::TYPE_VIDEO);
 
         return parent::FieldHolder($properties);
     }
