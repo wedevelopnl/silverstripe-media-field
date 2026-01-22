@@ -7,7 +7,7 @@ $finder = PhpCsFixer\Finder::create()
 $config = new PhpCsFixer\Config();
 $config
     ->setRules([
-        '@PHP81Migration' => true,
+        '@PHP83Migration' => true,
         '@PSR12' => true,
         'array_push' => true,
         'no_unused_imports' => true,
