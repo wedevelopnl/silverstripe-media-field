@@ -9,6 +9,7 @@ use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
+use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 
 class MediaField extends CompositeField
@@ -51,6 +52,7 @@ class MediaField extends CompositeField
         parent::__construct($children);
     }
 
+    /** @param array<string, mixed> $properties */
     public function FieldHolder($properties = []): DBHTMLText
     {
         $this->imageWrapper->displayIf($this->typeField)->isEqualTo(MediaType::Image->value);
@@ -75,7 +77,7 @@ class MediaField extends CompositeField
     }
 
     public static function saveEmbed(
-        mixed $object,
+        DataObject $object,
         string $videoFullURLField = 'MediaVideoFullURL',
         string $videoEmbeddedURLField = 'MediaVideoEmbeddedURL',
         string $videoProviderField = 'MediaVideoProvider',

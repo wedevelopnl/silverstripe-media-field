@@ -30,5 +30,8 @@ test: ##@develop Run code style test
 fix-cs: ##@develop Fix code styling
 	${docker} ./vendor/bin/php-cs-fixer fix
 
+phpstan: ##@develop Run static analysis
+	${docker} ./vendor/bin/phpstan analyse
+
 sh: ##@develop Open shell in container
 	${docker} sh

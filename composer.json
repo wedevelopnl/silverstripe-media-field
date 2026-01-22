@@ -20,7 +20,8 @@
         "silverstripe/asset-admin": "^3.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.50"
+        "friendsofphp/php-cs-fixer": "^3.50",
+        "cambis/silverstan": "^2.1"
     },
     "extra": {
         "installer-name": "silverstripe-media-field",
