@@ -1,3 +1,7 @@
 ---
 Name: mediafield
 ---
+WeDevelop\MediaField\Form\MediaField:
+  enabled_types:
+    image: true
+    video: true
