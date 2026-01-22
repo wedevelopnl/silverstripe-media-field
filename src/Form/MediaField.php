@@ -129,7 +129,7 @@ class MediaField extends CompositeField
                 $object->$videoEmbeddedCreatedField = $embed->getOEmbed()->get('upload_date') ?? '';
             } else {
                 $object->$videoEmbeddedThumbnailField = (string)$embed->image;
-                $object->$videoEmbeddedCreatedField = $embed->publishedTime?->format(\DateTime::ISO8601);
+                $object->$videoEmbeddedCreatedField = $embed->publishedTime?->format(\DateTimeInterface::ATOM);
             }
         }
     }
