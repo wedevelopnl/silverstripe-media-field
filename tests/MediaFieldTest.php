@@ -50,4 +50,25 @@ class MediaFieldTest extends SapphireTest
         self::assertInstanceOf(Wrapper::class, $field->getImageWrapper());
         self::assertNull($field->getVideoWrapper());
     }
+
+    public function testConstructorOmitsImageWhenDisabled(): void
+    {
+        \SilverStripe\Core\Config\Config::modify()->set(
+            MediaField::class,
+            'enabled_types',
+            ['image' => false, 'video' => true],
+        );
+
+        $parent = FieldList::create([
+            DropdownField::create('MediaType', 'Type'),
+            UploadField::create('MediaImage', 'Image'),
+            TextField::create('MediaVideoFullURL', 'Video URL'),
+        ]);
+
+        $field = new MediaField($parent);
+
+        self::assertNull($field->getImageWrapper());
+        self::assertNull($field->getImageUploadField());
+        self::assertInstanceOf(Wrapper::class, $field->getVideoWrapper());
+    }
 }
