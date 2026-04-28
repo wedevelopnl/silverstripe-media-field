@@ -11,7 +11,7 @@ services:
       - ../composer.json:/module/composer.json:ro
       - ../.php-cs-fixer.php:/module/.php-cs-fixer.php:ro
       - ../src:/module/src
-      - ../tests:/module/tests:ro
+      - ../tests:/module/tests
       - ../_config:/module/_config:ro
       - ../coverage:/app/coverage
       - vendor:/app/vendor

@@ -25,8 +25,8 @@ class SaveEmbedTest extends SapphireTest
 
         MediaField::saveEmbed($object, $embed);
 
-        self::assertSame('', (string) $object->MediaVideoEmbeddedURL);
-        self::assertSame('', (string) $object->MediaVideoProvider);
+        self::assertSame('', (string)$object->MediaVideoEmbeddedURL);
+        self::assertSame('', (string)$object->MediaVideoProvider);
     }
 
     public function testSkipsWhenUrlUnchangedAndEmbeddedUrlAlreadyPopulated(): void
@@ -46,7 +46,7 @@ class SaveEmbedTest extends SapphireTest
 
         MediaField::saveEmbed($reloaded, $embed);
 
-        self::assertSame('', (string) $reloaded->MediaVideoProvider);
+        self::assertSame('', (string)$reloaded->MediaVideoProvider);
     }
 
     public function testReturnsEarlyWhenIframeCodeHasNoSrc(): void
@@ -65,14 +65,14 @@ class SaveEmbedTest extends SapphireTest
 
         MediaField::saveEmbed($object, $embed);
 
-        self::assertSame('', (string) $object->MediaVideoEmbeddedURL);
-        self::assertSame('', (string) $object->MediaVideoProvider);
+        self::assertSame('', (string)$object->MediaVideoEmbeddedURL);
+        self::assertSame('', (string)$object->MediaVideoProvider);
     }
 
     public function testVimeoBranchPullsFromOEmbedPayload(): void
     {
         $oembed = $this->createMock(\Embed\OEmbed::class);
-        $oembed->method('get')->willReturnCallback(fn(string ...$keys): ?string => match ($keys[0] ?? null) {
+        $oembed->method('get')->willReturnCallback(fn (string ...$keys): ?string => match ($keys[0] ?? null) {
             'thumbnail_url' => 'https://i.vimeocdn.com/video/123_640.jpg',
             'upload_date' => '2024-05-12T10:00:00+00:00',
             default => null,
@@ -96,11 +96,11 @@ class SaveEmbedTest extends SapphireTest
 
         MediaField::saveEmbed($object, $embed);
 
-        self::assertSame('https://player.vimeo.com/video/123', (string) $object->MediaVideoEmbeddedURL);
-        self::assertSame('Vimeo', (string) $object->MediaVideoProvider);
-        self::assertSame('Test Vimeo Video', (string) $object->MediaVideoEmbeddedName);
-        self::assertSame('https://i.vimeocdn.com/video/123_640.jpg', (string) $object->MediaVideoEmbeddedThumbnail);
-        self::assertSame('2024-05-12T10:00:00+00:00', (string) $object->MediaVideoEmbeddedCreated);
+        self::assertSame('https://player.vimeo.com/video/123', (string)$object->MediaVideoEmbeddedURL);
+        self::assertSame('Vimeo', (string)$object->MediaVideoProvider);
+        self::assertSame('Test Vimeo Video', (string)$object->MediaVideoEmbeddedName);
+        self::assertSame('https://i.vimeocdn.com/video/123_640.jpg', (string)$object->MediaVideoEmbeddedThumbnail);
+        self::assertSame('2024-05-12T10:00:00+00:00', (string)$object->MediaVideoEmbeddedCreated);
     }
 
     public function testNonVimeoBranchUsesImageAndPublishedTime(): void
@@ -129,9 +129,9 @@ class SaveEmbedTest extends SapphireTest
 
         MediaField::saveEmbed($object, $embed);
 
-        self::assertSame('https://www.youtube.com/embed/abc', (string) $object->MediaVideoEmbeddedURL);
-        self::assertSame('YouTube', (string) $object->MediaVideoProvider);
-        self::assertSame('https://i.ytimg.com/vi/abc/hqdefault.jpg', (string) $object->MediaVideoEmbeddedThumbnail);
-        self::assertSame($publishedAt->format(\DateTimeInterface::ATOM), (string) $object->MediaVideoEmbeddedCreated);
+        self::assertSame('https://www.youtube.com/embed/abc', (string)$object->MediaVideoEmbeddedURL);
+        self::assertSame('YouTube', (string)$object->MediaVideoProvider);
+        self::assertSame('https://i.ytimg.com/vi/abc/hqdefault.jpg', (string)$object->MediaVideoEmbeddedThumbnail);
+        self::assertSame($publishedAt->format(\DateTimeInterface::ATOM), (string)$object->MediaVideoEmbeddedCreated);
     }
 }
