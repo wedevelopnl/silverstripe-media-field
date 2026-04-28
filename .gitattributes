@@ -1,9 +1,9 @@
 # Exclude development files from Packagist distributions
-/.gitattributes       export-ignore
-/.gitignore           export-ignore
-/.php-cs-fixer.php    export-ignore
-/compose.yml          export-ignore
-/dev/                 export-ignore
-/Dockerfile           export-ignore
-/Makefile             export-ignore
-/phpstan.neon         export-ignore
+/.docker             export-ignore
+/.github             export-ignore
+/.gitattributes      export-ignore
+/.gitignore          export-ignore
+/.php-cs-fixer.php   export-ignore
+/docs                export-ignore
+/Makefile            export-ignore
+/tests               export-ignore

@@ -102,6 +102,7 @@ class MediaField extends CompositeField
 
     public static function saveEmbed(
         DataObject $object,
+        Embed $embed,
         string $videoFullURLField = 'MediaVideoFullURL',
         string $videoEmbeddedURLField = 'MediaVideoEmbeddedURL',
         string $videoProviderField = 'MediaVideoProvider',
@@ -111,8 +112,8 @@ class MediaField extends CompositeField
         string $videoEmbeddedCreatedField = 'MediaVideoEmbeddedCreated',
     ): void {
         if ($object->$videoFullURLField && ($object->isChanged($videoFullURLField) || !$object->$videoEmbeddedURLField)) {
-            $embed = (new Embed())->get($object->$videoFullURLField);
-            $iframeCode = (string)$embed->code;
+            $embedData = $embed->get($object->$videoFullURLField);
+            $iframeCode = (string)$embedData->code;
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
 
             if (!isset($match[1])) {
@@ -120,16 +121,16 @@ class MediaField extends CompositeField
             }
 
             $object->$videoEmbeddedURLField = $match[1];
-            $object->$videoProviderField = (string)$embed->providerName;
-            $object->$videoEmbeddedNameField = (string)$embed->title;
-            $object->$videoEmbeddedDescriptionField = (string)$embed->description;
+            $object->$videoProviderField = (string)$embedData->providerName;
+            $object->$videoEmbeddedNameField = (string)$embedData->title;
+            $object->$videoEmbeddedDescriptionField = (string)$embedData->description;
 
-            if ($embed->providerName === 'Vimeo') {
-                $object->$videoEmbeddedThumbnailField = $embed->getOEmbed()->get('thumbnail_url');
-                $object->$videoEmbeddedCreatedField = $embed->getOEmbed()->get('upload_date') ?? '';
+            if ($embedData->providerName === 'Vimeo') {
+                $object->$videoEmbeddedThumbnailField = $embedData->getOEmbed()->get('thumbnail_url');
+                $object->$videoEmbeddedCreatedField = $embedData->getOEmbed()->get('upload_date') ?? '';
             } else {
-                $object->$videoEmbeddedThumbnailField = (string)$embed->image;
-                $object->$videoEmbeddedCreatedField = $embed->publishedTime?->format(\DateTimeInterface::ATOM);
+                $object->$videoEmbeddedThumbnailField = (string)$embedData->image;
+                $object->$videoEmbeddedCreatedField = $embedData->publishedTime?->format(\DateTimeInterface::ATOM);
             }
         }
     }

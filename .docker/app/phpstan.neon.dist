@@ -1,8 +1,5 @@
-includes:
-    - vendor/cambis/silverstan/extension.neon
-
 parameters:
     level: 9
     paths:
-        - src
+        - /module/src
     treatPhpDocTypesAsCertain: false

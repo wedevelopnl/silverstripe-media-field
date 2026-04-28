@@ -21,16 +21,38 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 See read our [contributing](CONTRIBUTING.md) document for more information.
 
 ### Getting started
-We advise to use [Docker](https://docker.com)/[Docker compose](https://docs.docker.com/compose/) for development.\
-We also included a [Makefile](https://www.gnu.org/software/make/) to simplify some commands
 
-Our development container contains some built-in tools like `PHPCSFixer`.
+We use [Docker Compose](https://docs.docker.com/compose/) for development. A `Makefile` wraps the common tasks.
 
-#### Getting development container up
-`make build` to build the Docker container and then run detached.\
-If you want to only get the container up, you can simply type `make up`.
+#### Bring the stack up
 
-You can SSH into the container using `make sh`.
+- `make build` — build the image without starting.
+- `make up` — start services (builds if needed). The CMS becomes available at the URL printed by the command.
+- `make down` — stop services.
+- `make destroy` — stop services and remove volumes (resets the test database).
 
-#### All make commands
-You can run `make help` to get a list with all available `make` commands.
+#### Run checks
+
+- `make test` — run PHPUnit.
+- `make analyse` — run PHPStan static analysis (level 9).
+- `make test-cs` — run php-cs-fixer in dry-run mode.
+- `make fix-cs` — auto-fix code style.
+
+`make sh` opens a shell inside the app container.
+
+## Upgrade notes
+
+### 6.0 — `saveEmbed()` signature change
+
+`MediaField::saveEmbed()` now takes a required `Embed\Embed` instance as its second argument. Update consumer code:
+
+```php
+// Before
+MediaField::saveEmbed($this);
+
+// After
+use Embed\Embed;
+MediaField::saveEmbed($this, new Embed());
+```
+
+The remaining field-name arguments are unchanged. This change unblocks unit tests that exercise the embed-resolution branches without making real network requests.
