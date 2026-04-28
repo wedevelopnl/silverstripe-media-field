@@ -23,8 +23,20 @@ jobs:
       - name: Run php-cs-fixer
         run: php-cs-fixer fix --diff --dry-run --config=.php-cs-fixer.php
 
-  php-qa:
-    name: PHP QA (PHP ${{ matrix.php }})
+  static-analysis:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE: docker compose -f .docker/compose.yml
+    steps:
+      - uses: actions/checkout@v4
+      - run: make .docker/.env
+      - run: $COMPOSE up -d --build --wait
+        name: Start services
+      - run: make analyse
+
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -40,7 +52,6 @@ jobs:
       - run: make .docker/.env
       - run: $COMPOSE up -d --build --wait
         name: Start services
-      - run: make analyse
       - run: mkdir -p reports
       - run: >-
           $COMPOSE exec app vendor/bin/phpunit
