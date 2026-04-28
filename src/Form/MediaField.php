@@ -113,7 +113,7 @@ class MediaField extends CompositeField
     ): void {
         if ($object->$videoFullURLField && ($object->isChanged($videoFullURLField) || !$object->$videoEmbeddedURLField)) {
             $embedData = $embed->get($object->$videoFullURLField);
-            $iframeCode = (string) $embedData->code;
+            $iframeCode = (string)$embedData->code;
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
 
             if (!isset($match[1])) {
@@ -121,15 +121,15 @@ class MediaField extends CompositeField
             }
 
             $object->$videoEmbeddedURLField = $match[1];
-            $object->$videoProviderField = (string) $embedData->providerName;
-            $object->$videoEmbeddedNameField = (string) $embedData->title;
-            $object->$videoEmbeddedDescriptionField = (string) $embedData->description;
+            $object->$videoProviderField = (string)$embedData->providerName;
+            $object->$videoEmbeddedNameField = (string)$embedData->title;
+            $object->$videoEmbeddedDescriptionField = (string)$embedData->description;
 
             if ($embedData->providerName === 'Vimeo') {
                 $object->$videoEmbeddedThumbnailField = $embedData->getOEmbed()->get('thumbnail_url');
                 $object->$videoEmbeddedCreatedField = $embedData->getOEmbed()->get('upload_date') ?? '';
             } else {
-                $object->$videoEmbeddedThumbnailField = (string) $embedData->image;
+                $object->$videoEmbeddedThumbnailField = (string)$embedData->image;
                 $object->$videoEmbeddedCreatedField = $embedData->publishedTime?->format(\DateTimeInterface::ATOM);
             }
         }
