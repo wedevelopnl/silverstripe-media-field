@@ -28,4 +28,24 @@ class SaveEmbedTest extends SapphireTest
         self::assertSame('', (string) $object->MediaVideoEmbeddedURL);
         self::assertSame('', (string) $object->MediaVideoProvider);
     }
+
+    public function testSkipsWhenUrlUnchangedAndEmbeddedUrlAlreadyPopulated(): void
+    {
+        /** @var Embed&MockObject $embed */
+        $embed = $this->createMock(Embed::class);
+        $embed->expects($this->never())->method('get');
+
+        $object = MediaFieldDataObjectStub::create();
+        $object->MediaVideoFullURL = 'https://www.youtube.com/watch?v=abc';
+        $object->MediaVideoEmbeddedURL = 'https://www.youtube.com/embed/abc';
+        $object->write();
+
+        $reloaded = MediaFieldDataObjectStub::get()->byID($object->ID);
+        self::assertNotNull($reloaded);
+        self::assertFalse($reloaded->isChanged('MediaVideoFullURL'));
+
+        MediaField::saveEmbed($reloaded, $embed);
+
+        self::assertSame('', (string) $reloaded->MediaVideoProvider);
+    }
 }
