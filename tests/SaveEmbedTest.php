@@ -68,4 +68,38 @@ class SaveEmbedTest extends SapphireTest
         self::assertSame('', (string) $object->MediaVideoEmbeddedURL);
         self::assertSame('', (string) $object->MediaVideoProvider);
     }
+
+    public function testVimeoBranchPullsFromOEmbedPayload(): void
+    {
+        $oembed = $this->createMock(\Embed\OEmbed::class);
+        $oembed->method('get')->willReturnCallback(fn(string ...$keys): ?string => match ($keys[0] ?? null) {
+            'thumbnail_url' => 'https://i.vimeocdn.com/video/123_640.jpg',
+            'upload_date' => '2024-05-12T10:00:00+00:00',
+            default => null,
+        });
+
+        $extractor = $this->createMock(\Embed\Extractor::class);
+        $extractor->method('__get')->willReturnMap([
+            ['code', new \Embed\EmbedCode('<iframe src="https://player.vimeo.com/video/123" width="640" height="360"></iframe>')],
+            ['providerName', 'Vimeo'],
+            ['title', 'Test Vimeo Video'],
+            ['description', 'desc'],
+        ]);
+        $extractor->method('getOEmbed')->willReturn($oembed);
+
+        /** @var Embed&MockObject $embed */
+        $embed = $this->createMock(Embed::class);
+        $embed->method('get')->willReturn($extractor);
+
+        $object = MediaFieldDataObjectStub::create();
+        $object->MediaVideoFullURL = 'https://vimeo.com/123';
+
+        MediaField::saveEmbed($object, $embed);
+
+        self::assertSame('https://player.vimeo.com/video/123', (string) $object->MediaVideoEmbeddedURL);
+        self::assertSame('Vimeo', (string) $object->MediaVideoProvider);
+        self::assertSame('Test Vimeo Video', (string) $object->MediaVideoEmbeddedName);
+        self::assertSame('https://i.vimeocdn.com/video/123_640.jpg', (string) $object->MediaVideoEmbeddedThumbnail);
+        self::assertSame('2024-05-12T10:00:00+00:00', (string) $object->MediaVideoEmbeddedCreated);
+    }
 }
