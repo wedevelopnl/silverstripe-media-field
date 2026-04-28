@@ -44,4 +44,4 @@ The module does **not** define a `DataExtension` or schema. Consumers add their 
 
 ## Distribution
 
-`.gitattributes` marks dev files (`Dockerfile`, `Makefile`, `compose.yml`, `dev/`, `phpstan.neon`, `.php-cs-fixer.php`, etc.) as `export-ignore` so they are excluded from Packagist tarballs. When adding new dev-only files at the root, add a matching `export-ignore` entry.
+`.gitattributes` marks dev files (`/.docker`, `/.github`, `/Makefile`, `/.php-cs-fixer.php`, `/docs`, `/tests`, etc.) as `export-ignore` so they are excluded from Packagist tarballs. When adding new dev-only files at the root, add a matching `export-ignore` entry.
