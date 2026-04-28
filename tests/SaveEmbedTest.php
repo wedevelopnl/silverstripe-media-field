@@ -102,4 +102,36 @@ class SaveEmbedTest extends SapphireTest
         self::assertSame('https://i.vimeocdn.com/video/123_640.jpg', (string) $object->MediaVideoEmbeddedThumbnail);
         self::assertSame('2024-05-12T10:00:00+00:00', (string) $object->MediaVideoEmbeddedCreated);
     }
+
+    public function testNonVimeoBranchUsesImageAndPublishedTime(): void
+    {
+        $publishedAt = new \DateTime('2024-03-01T12:00:00+00:00');
+
+        $imageUri = $this->createMock(\Psr\Http\Message\UriInterface::class);
+        $imageUri->method('__toString')->willReturn('https://i.ytimg.com/vi/abc/hqdefault.jpg');
+
+        $extractor = $this->createMock(\Embed\Extractor::class);
+        $extractor->method('__get')->willReturnMap([
+            ['code', new \Embed\EmbedCode('<iframe src="https://www.youtube.com/embed/abc" width="640" height="360"></iframe>')],
+            ['providerName', 'YouTube'],
+            ['title', 'Test YouTube Video'],
+            ['description', 'desc'],
+            ['image', $imageUri],
+            ['publishedTime', $publishedAt],
+        ]);
+
+        /** @var Embed&MockObject $embed */
+        $embed = $this->createMock(Embed::class);
+        $embed->method('get')->willReturn($extractor);
+
+        $object = MediaFieldDataObjectStub::create();
+        $object->MediaVideoFullURL = 'https://www.youtube.com/watch?v=abc';
+
+        MediaField::saveEmbed($object, $embed);
+
+        self::assertSame('https://www.youtube.com/embed/abc', (string) $object->MediaVideoEmbeddedURL);
+        self::assertSame('YouTube', (string) $object->MediaVideoProvider);
+        self::assertSame('https://i.ytimg.com/vi/abc/hqdefault.jpg', (string) $object->MediaVideoEmbeddedThumbnail);
+        self::assertSame($publishedAt->format(\DateTimeInterface::ATOM), (string) $object->MediaVideoEmbeddedCreated);
+    }
 }
