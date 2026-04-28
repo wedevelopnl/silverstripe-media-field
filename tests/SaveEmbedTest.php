@@ -48,4 +48,24 @@ class SaveEmbedTest extends SapphireTest
 
         self::assertSame('', (string) $reloaded->MediaVideoProvider);
     }
+
+    public function testReturnsEarlyWhenIframeCodeHasNoSrc(): void
+    {
+        $extractor = $this->createMock(\Embed\Extractor::class);
+        $extractor->method('__get')->willReturnMap([
+            ['code', new \Embed\EmbedCode('<div>no iframe here</div>')],
+        ]);
+
+        /** @var Embed&MockObject $embed */
+        $embed = $this->createMock(Embed::class);
+        $embed->method('get')->willReturn($extractor);
+
+        $object = MediaFieldDataObjectStub::create();
+        $object->MediaVideoFullURL = 'https://example.com/no-iframe';
+
+        MediaField::saveEmbed($object, $embed);
+
+        self::assertSame('', (string) $object->MediaVideoEmbeddedURL);
+        self::assertSame('', (string) $object->MediaVideoProvider);
+    }
 }
