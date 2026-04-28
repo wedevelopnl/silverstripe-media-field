@@ -59,7 +59,7 @@ jobs:
         name: Run PHPUnit
       - run: cp coverage/phpunit-junit.xml reports/phpunit-junit.xml
         if: always()
-      - uses: dorny/test-reporter@v1
+      - uses: dorny/test-reporter@v3
         if: always()
         with:
           name: PHPUnit Results (PHP ${{ matrix.php }})
