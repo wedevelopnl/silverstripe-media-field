@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/silverstripe/framework/tests/bootstrap.php"
+         cacheDirectory=".phpunit.cache"
+         colors="true"
+         beStrictAboutTestsThatDoNotTestAnything="true">
+    <testsuites>
+        <testsuite name="default">
+            <directory>vendor/wedevelopnl/silverstripe-media-field/tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory suffix=".php">vendor/wedevelopnl/silverstripe-media-field/src</directory>
+        </include>
+    </source>
+</phpunit>
