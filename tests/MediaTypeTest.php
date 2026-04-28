@@ -12,4 +12,12 @@ class MediaTypeTest extends TestCase
         self::assertSame('Image', MediaType::Image->label());
         self::assertSame('Video', MediaType::Video->label());
     }
+
+    public function testToDropdownSourceReturnsValueLabelMap(): void
+    {
+        self::assertSame(
+            ['image' => 'Image', 'video' => 'Video'],
+            MediaType::toDropdownSource(),
+        );
+    }
 }
