@@ -29,7 +29,7 @@ The whole module is two classes plus one YAML config:
 - `_config/config.yml` — toggles `MediaField::$enabled_types` per media type. Disabling a type both removes it from the dropdown and skips constructing its wrapper/upload field, so `getImageWrapper()` / `getVideoWrapper()` may legitimately return `null`.
 - `tests/` — PHPUnit suite. `MediaTypeTest` covers the enum, `MediaFieldTest` (extends `SapphireTest`) covers the composite-field wiring under each `enabled_types` permutation, and `SaveEmbedTest` (extends `SapphireTest`) uses a `MockObject` of `Embed\Embed` to assert each branch of the static helper. The stub DataObject lives at `tests/Stub/MediaFieldDataObjectStub.php`.
 - `.docker/` — FrankenPHP+MySQL test stack, modelled on `silverstripe-grid/.docker/`. The module is mounted into the container at `/module` and pulled into the test SilverStripe app via a path repository.
-- `.github/workflows/ci.yml` — `code-style` job + `php-qa` matrix (PHP 8.3/8.4/8.5).
+- `.github/workflows/ci.yml` — `code-style`, `static-analysis`, and `phpunit` matrix (PHP 8.3/8.4/8.5) jobs.
 
 ### How consumers integrate
 

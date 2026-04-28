@@ -5,7 +5,7 @@
 ### Added
 
 - Automated test suite (PHPUnit) covering `MediaType`, `MediaField` constructor/wrapper logic, and `MediaField::saveEmbed()` branch behaviour.
-- GitHub Actions CI: `code-style` (php-cs-fixer) and `php-qa` (PHPStan + PHPUnit) matrix across PHP 8.3, 8.4, and 8.5.
+- GitHub Actions CI: `code-style` (php-cs-fixer), `static-analysis` (PHPStan), and `phpunit` matrix across PHP 8.3, 8.4, and 8.5.
 - Dependabot for `composer`, `docker`, and `github-actions` ecosystems.
 - FrankenPHP-based Docker stack at `.docker/` that loads a real SilverStripe runtime, replacing the previous `php-cli` Alpine image.
 
