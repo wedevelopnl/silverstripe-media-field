@@ -10,6 +10,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
 use UncleCheese\DisplayLogic\Forms\Wrapper;
 use SilverStripe\ORM\FieldType\DBHTMLText;
+use Embed\Http\Crawler;
 
 class MediaField extends CompositeField
 {
@@ -94,7 +95,11 @@ class MediaField extends CompositeField
         string $videoEmbeddedCreatedField = 'MediaVideoEmbeddedCreated',
     ): void {
         if ($object->$videoFullURLField && ($object->isChanged($videoFullURLField) || !$object->$videoEmbeddedURLField)) {
-            $embed = (new Embed())->get($object->$videoFullURLField);
+            $crawler = new Crawler();
+            $crawler->addDefaultHeaders([
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            ]);
+            $embed = (new Embed($crawler))->get($object->$videoFullURLField);
             $iframeCode = (string)$embed->code;
             preg_match('/src="([^"]+)"/', $iframeCode, $match);
 
