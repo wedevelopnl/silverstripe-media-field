@@ -1,6 +1,7 @@
 {
     "name": "wedevelopnl/silverstripe-media-field",
     "description": "Media field module",
+    "license": "MIT",
     "keywords": [
         "silverstripe",
         "media",
@@ -19,14 +20,8 @@
         "embed/embed": "^4.5.4",
         "silverstripe/asset-admin": "^3.0"
     },
-    "require-dev": {
-        "cambis/silverstan": "^2.1"
-    },
     "extra": {
-        "installer-name": "silverstripe-media-field",
-        "branch-alias": {
-            "dev-main": "6.x-dev"
-        }
+        "installer-name": "silverstripe-media-field"
     },
     "autoload": {
         "psr-4": {
