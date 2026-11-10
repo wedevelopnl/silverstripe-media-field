@@ -12,7 +12,7 @@ PHP 8.3+, namespace `WeDevelop\MediaField\` rooted at `src/`.
 - `make up` / `make down` / `make destroy` — start / stop / wipe the stack.
 - `make sh` — shell into the container.
 - `make test` — run PHPUnit (defined in `.docker/app/phpunit.xml.dist`).
-- `make analyse` — run PHPStan at level 9.
+- `make analyse` — run PHPStan at level max, both passes (`phpstan.neon.dist`, then `phpstan-php85.neon.dist`).
 - `make test-cs` — run php-cs-fixer in dry-run mode.
 - `make fix-cs` — auto-fix code style.
 - `make flush` / `make dev-build` — `sake flush` / `sake dev/build flush=1` in the test app. Not needed before `make test` (`SS_PHPUNIT_FLUSH=1` is set).
@@ -48,7 +48,9 @@ The module does **not** define a `DataExtension` or schema. Consumers add their 
 
 - `.php-cs-fixer.php` at the root: PSR-12 + `@PHP83Migration`, strict comparison, short array syntax, no `declare(strict_types=1)` yet (`declare_strict_types` is off in the file).
 - CI `code-style` runs an unpinned php-cs-fixer on the runner; `make test-cs` uses `^3.50` from the test app. A CI-only style failure means version drift, not a local miss.
-- PHPStan runs at **level 9** with `treatPhpDocTypesAsCertain: false` (`.docker/app/phpstan.neon.dist`), on `src/` only — `tests/` is not analysed; php-cs-fixer covers both. New code is expected to type-hint thoroughly enough to pass at this level.
+- PHPStan runs at **level max** with `tomasvotruba/type-coverage` at 100% for return/param/property/constant types, on `src/` only — `tests/` is not analysed; php-cs-fixer covers both. A docblock-only type fails type coverage; declare it natively.
+  - `.docker/app/phpstan.neon.dist` analyses the PHP 8.3–8.5 range; `.docker/app/phpstan-php85.neon.dist` includes it and pins the target to 8.5 for version-gated checks (`#[\NoDiscard]`). Both files are `COPY`'d in `.docker/Dockerfile`: a config change needs `make build`.
+  - Magic DataObject field values (`$object->$field`) are `mixed`: narrow with `is_string()` etc. before use — a `(string)` cast fails at max.
 
 ## Distribution
 

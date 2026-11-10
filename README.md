@@ -76,7 +76,7 @@ We use [Docker Compose](https://docs.docker.com/compose/) for development. A `Ma
 #### Run checks
 
 - `make test` — run PHPUnit.
-- `make analyse` — run PHPStan static analysis (level 9).
+- `make analyse` — run PHPStan static analysis at level max with 100% type coverage: once across PHP 8.3–8.5, then once targeting PHP 8.5 only for checks gated on that version.
 - `make test-cs` — run php-cs-fixer in dry-run mode.
 - `make fix-cs` — auto-fix code style.
 

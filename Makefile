@@ -31,9 +31,10 @@ ensure-up: .docker/.env
 test: ensure-up
 	$(COMPOSE) exec app vendor/bin/phpunit
 
-## Run PHPStan static analysis
+## Run PHPStan static analysis (8.3-8.5 range, then the 8.5-only pass)
 analyse: ensure-up
 	$(COMPOSE) exec app vendor/bin/phpstan analyse -c phpstan.neon.dist --memory-limit=512M
+	$(COMPOSE) exec app vendor/bin/phpstan analyse -c phpstan-php85.neon.dist --memory-limit=512M
 
 ## Run php-cs-fixer dry-run (was: `make test` in the old setup)
 test-cs: ensure-up
