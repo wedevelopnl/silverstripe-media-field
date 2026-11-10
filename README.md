@@ -10,6 +10,39 @@ Adds a media field with extra options as well as video embeds
 ## Usage
 This module introduces a media field to the silverstripe cms.
 
+Add the media DB fields to your `DataObject`, pass its field list to `MediaField` in `getCMSFields()`, and let the module fill in the video details on save:
+
+```php
+use WeDevelop\MediaField\Service\VideoEmbedResolver;
+
+protected function onBeforeWrite(): void
+{
+    parent::onBeforeWrite();
+    VideoEmbedResolver::singleton()->resolve($this);
+}
+```
+
+Pass your own field names after `$this` when they differ from the defaults (`MediaVideoFullURL`, `MediaVideoEmbeddedURL`, `MediaVideoProvider`, `MediaVideoEmbeddedName`, `MediaVideoEmbeddedDescription`, `MediaVideoEmbeddedThumbnail`, `MediaVideoEmbeddedCreated`).
+
+When the video URL points to an address the module refuses to fetch (an internal network, no `http(s)://`, credentials in the URL, a disallowed port), or the video site can't be reached, `resolve()` throws a `ValidationException` with a message on the video URL field, so the CMS shows it under that field and the record isn't saved. Refused addresses are logged as a warning.
+
+### Browser identification
+
+Some video sites refuse requests from outdated browsers, so the module identifies itself with a browser `User-Agent`. It uses its own connection (`Embed\Embed.mediafield` in `_config/embed.yml`), separate from the framework's oEmbed service. To send a different identification, add one more `calls:` entry in your project's config; the last one wins:
+
+```yaml
+---
+Name: app-mediafield-embed
+After: mediafield-embed
+---
+SilverStripe\Core\Injector\Injector:
+  Embed\Http\Crawler.mediafield:
+    calls:
+      - [addDefaultHeaders, [{User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'}]]
+```
+
+Don't override `constructor:` the same way: config merging appends list entries, so it would add an argument instead of replacing one.
+
 ## License
 See [License](LICENSE)
 
@@ -42,17 +75,20 @@ We use [Docker Compose](https://docs.docker.com/compose/) for development. A `Ma
 
 ## Upgrade notes
 
-### 6.0 — `saveEmbed()` signature change
+### 6.0 — `MediaField::saveEmbed()` replaced by `VideoEmbedResolver`
 
-`MediaField::saveEmbed()` now takes a required `Embed\Embed` instance as its second argument. Update consumer code:
+Fetching video details moved off the form field into an injectable service that sets up its own connection to video sites. Replace the call in your `onBeforeWrite()`, whichever form you have:
 
 ```php
-// Before
+// Before (4.x)
 MediaField::saveEmbed($this);
 
-// After
-use Embed\Embed;
+// Before (6.0.0-RC1 to RC3)
 MediaField::saveEmbed($this, new Embed());
+
+// After
+use WeDevelop\MediaField\Service\VideoEmbedResolver;
+VideoEmbedResolver::singleton()->resolve($this);
 ```
 
-The remaining field-name arguments are unchanged. This change unblocks unit tests that exercise the embed-resolution branches without making real network requests.
+Custom field-name arguments keep their order; drop the `Embed` argument if you passed one. `resolve()` can now throw a `ValidationException` for a refused or unreachable video URL (see Usage). `embed/embed` is required at `^4.5.4`.

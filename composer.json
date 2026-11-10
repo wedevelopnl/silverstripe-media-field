@@ -16,7 +16,7 @@
         "php": "^8.3",
         "silverstripe/cms": "^6",
         "unclecheese/display-logic": "^4.0",
-        "embed/embed": "^4.0",
+        "embed/embed": "^4.5.4",
         "silverstripe/asset-admin": "^3.0"
     },
     "require-dev": {

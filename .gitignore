@@ -6,3 +6,4 @@ composer.lock
 .vscode
 .docker/.env
 coverage
+.storyflow

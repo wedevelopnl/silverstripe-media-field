@@ -1,0 +1,19 @@
+---
+Name: mediafield-embed
+---
+# The module's own oEmbed connection, separate from the framework's `Embed\Embed` (Guzzle).
+# Every spec names its class explicitly: a `.mediafield` name without a spec would silently
+# resolve to the framework's service and lose CurlClient's IP pinning.
+SilverStripe\Core\Injector\Injector:
+  Embed\Http\CurlClient.mediafield:
+    class: Embed\Http\CurlClient
+  Embed\Http\Crawler.mediafield:
+    class: Embed\Http\Crawler
+    constructor:
+      - '%$Embed\Http\CurlClient.mediafield'
+    calls:
+      - [addDefaultHeaders, [{User-Agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'}]]
+  Embed\Embed.mediafield:
+    class: Embed\Embed
+    constructor:
+      - '%$Embed\Http\Crawler.mediafield'
