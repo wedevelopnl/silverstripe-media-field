@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- PHPStan raised from level 9 to level max with 100% type coverage, analysed across PHP 8.3–8.5 plus a second pass targeting PHP 8.5.
+
 ## [6.0.0] - 2026-11-10
 
 First stable release for Silverstripe CMS 6. Covers all changes since 4.0.1, including those shipped in 6.0.0-RC1 to RC3.

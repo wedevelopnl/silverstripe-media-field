@@ -24,7 +24,8 @@
         "friendsofphp/php-cs-fixer": "^3.50",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
-        "phpunit/phpunit": "^11.3"
+        "phpunit/phpunit": "^11.3",
+        "tomasvotruba/type-coverage": "^2.5"
     },
     "autoload-dev": {
         "psr-4": {

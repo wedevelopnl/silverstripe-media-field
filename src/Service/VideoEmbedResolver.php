@@ -44,11 +44,12 @@ class VideoEmbedResolver
         string $videoEmbeddedThumbnailField = 'MediaVideoEmbeddedThumbnail',
         string $videoEmbeddedCreatedField = 'MediaVideoEmbeddedCreated',
     ): void {
-        if (!$object->$videoFullURLField || (!$object->isChanged($videoFullURLField) && $object->$videoEmbeddedURLField)) {
+        $url = $object->$videoFullURLField;
+        if (!is_string($url) || !$url || (!$object->isChanged($videoFullURLField) && $object->$videoEmbeddedURLField)) {
             return;
         }
 
-        $embedData = $this->fetch($object, $videoFullURLField);
+        $embedData = $this->fetch($object, $videoFullURLField, $url);
         $iframeCode = (string)$embedData->code;
         preg_match('/src="([^"]+)"/', $iframeCode, $match);
 
@@ -70,10 +71,10 @@ class VideoEmbedResolver
         }
     }
 
-    private function fetch(DataObject $object, string $videoFullURLField): Extractor
+    private function fetch(DataObject $object, string $videoFullURLField, string $url): Extractor
     {
         try {
-            return $this->embed->get((string)$object->$videoFullURLField);
+            return $this->embed->get($url);
         } catch (BlockedRequestException $e) {
             $this->logger->warning('Refused to fetch video details for a blocked address', [
                 'reason' => $e->getReason(),
