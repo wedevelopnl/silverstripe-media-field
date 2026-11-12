@@ -2,8 +2,14 @@
 
 ## [Unreleased]
 
+## [6.0.1] - 2026-11-12
+
+Maintenance release: documentation, package metadata and tooling. No behaviour change for consumers.
+
 ### Changed
 
+- README: 6.0 upgrade notes completed (PHP and CMS requirements, `unclecheese/display-logic` swap, `MediaType` enum, nullable wrapper getters, video creation date format), `enabled_types` documented, and the dead `CONTRIBUTING.md` link removed.
+- `composer.json` declares the `MIT` license, drops the stale `dev-main` branch alias, and no longer requires `cambis/silverstan` for development.
 - PHPStan raised from level 9 to level max with 100% type coverage, analysed across PHP 8.3–8.5 plus a second pass targeting PHP 8.5.
 
 ## [6.0.0] - 2026-11-10
@@ -38,5 +44,6 @@ First stable release for Silverstripe CMS 6. Covers all changes since 4.0.1, inc
 - Root `Dockerfile`, `compose.yml`, and `dev/` directory — superseded by `.docker/`.
 - `friendsofphp/php-cs-fixer` from module `require-dev` — moved to the test app's composer manifest at `.docker/app/composer.json`.
 
-[Unreleased]: https://github.com/wedevelopnl/silverstripe-media-field/compare/6.0.0...6
+[Unreleased]: https://github.com/wedevelopnl/silverstripe-media-field/compare/6.0.1...6
+[6.0.1]: https://github.com/wedevelopnl/silverstripe-media-field/compare/6.0.0...6.0.1
 [6.0.0]: https://github.com/wedevelopnl/silverstripe-media-field/compare/4.0.1...6.0.0
